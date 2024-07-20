@@ -2,17 +2,17 @@
 
 import { css } from "@/styled-system/css";
 import { highlight, languages } from "prismjs";
-import { FC, useState } from "react";
+import { FC, PropsWithChildren, useState } from "react";
 import ReactSimpleCodeEditor from "react-simple-code-editor";
 import "prismjs/themes/prism.css";
 import cssValidator from "w3c-css-validator";
-import { ValidateTextResultWithoutWarnings } from "w3c-css-validator/dist/types/result";
 
-const CommonCodeEditor: FC<{
-  lang: string;
-  value: string;
-  setValue: (value: string) => void;
-}> = ({ lang, value, setValue }) => {
+const EditorArea: FC<
+  PropsWithChildren<{
+    lang: string;
+    isValid: boolean;
+  }>
+> = ({ lang, children, isValid }) => {
   return (
     <div
       className={css({
@@ -21,9 +21,26 @@ const CommonCodeEditor: FC<{
         height: "full",
       })}
     >
-      <p className={css({ fontWeight: "bold", p: 1, bg: "gray.200" })}>
-        {lang.toUpperCase()}
-      </p>
+      <div
+        className={css({
+          bg: "gray.200",
+          p: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        })}
+      >
+        <p
+          className={css({
+            fontWeight: "bold",
+          })}
+        >
+          {lang.toUpperCase()}
+        </p>
+        <p className={css({ fontSize: "sm" })}>
+          {isValid ? "" : "🚨 コードが間違っています"}
+        </p>
+      </div>
       <div
         className={css({
           flexGrow: 1,
@@ -33,30 +50,29 @@ const CommonCodeEditor: FC<{
           overflowY: "scroll",
         })}
       >
-        <ReactSimpleCodeEditor
-          value={value}
-          onValueChange={(code) => {
-            setValue(code);
-          }}
-          highlight={(code) => highlight(code, languages[lang], lang)}
-          padding={8}
-          className={css({
-            padding: 2,
-            fontFamily: '"JetBrains Mono", "Fira code", "Fira Mono", monospace',
-            fontSize: 16,
-            minHeight: "full",
-          })}
-        />
+        {children}
       </div>
     </div>
   );
 };
 
+const editorStyle = css({
+  padding: 2,
+  fontFamily: '"JetBrains Mono", "Fira code", "Fira Mono", monospace',
+  fontSize: 16,
+  minHeight: "full",
+});
+
 export const Editor: FC = () => {
-  const [errors, setErrors] = useState<ValidateTextResultWithoutWarnings>();
   const [code, setCode] = useState({
-    html: "<!-- body の中身だけ書いてください -->",
-    css: "",
+    html: {
+      isValid: true,
+      code: "<!-- body の中身だけ書いてください -->",
+    },
+    css: {
+      isValid: true,
+      code: "// CSS",
+    },
   });
 
   return (
@@ -68,32 +84,76 @@ export const Editor: FC = () => {
           gridTemplateRows: "repeat(2, 1fr)",
         })}
       >
-        <CommonCodeEditor
-          lang="html"
-          value={code.html}
-          setValue={(code) => {
-            setCode((prev) => ({
-              ...prev,
-              html: code,
-            }));
-          }}
-        />
-        <CommonCodeEditor
-          lang="css"
-          value={code.css}
-          setValue={(code) => {
-            (async () => {
-              if (code) {
-                setErrors(await cssValidator.validateText(code));
-              }
-            })();
+        <EditorArea lang="html" isValid={true}>
+          <ReactSimpleCodeEditor
+            value={code.html.code}
+            onValueChange={(code) => {
+              setCode((prev) => ({
+                ...prev,
+                html: {
+                  ...prev.html,
+                  code,
+                },
+              }));
+            }}
+            highlight={(code) => highlight(code, languages.html, "html")}
+            padding={8}
+            className={editorStyle}
+            // onBlur={() => {
+            //   const validator = new HtmlValidate();
+            //   const result = validator.validateStringSync(code.html.code);
 
-            setCode((prev) => ({
-              ...prev,
-              css: code,
-            }));
-          }}
-        />
+            //   setCode((prev) => ({
+            //     ...prev,
+            //     css: {
+            //       ...prev.css,
+            //       isValid: result.valid,
+            //     },
+            //   }));
+            // }}
+          />
+        </EditorArea>
+        <EditorArea lang="css" isValid={code.css.isValid}>
+          <ReactSimpleCodeEditor
+            value={code.css.code}
+            onValueChange={(code) => {
+              setCode((prev) => ({
+                ...prev,
+                css: {
+                  ...prev.css,
+                  code,
+                },
+              }));
+            }}
+            highlight={(code) => highlight(code, languages.css, "css")}
+            padding={8}
+            className={editorStyle}
+            onBlur={() => {
+              if (!code.css.code) {
+                setCode((prev) => ({
+                  ...prev,
+                  css: {
+                    ...prev.css,
+                    code: "",
+                    isValid: true,
+                  },
+                }));
+                return;
+              }
+
+              (async () => {
+                const errors = await cssValidator.validateText(code.css.code);
+                setCode((prev) => ({
+                  ...prev,
+                  css: {
+                    ...prev.css,
+                    isValid: errors.valid,
+                  },
+                }));
+              })();
+            }}
+          />
+        </EditorArea>
       </div>
     </>
   );
