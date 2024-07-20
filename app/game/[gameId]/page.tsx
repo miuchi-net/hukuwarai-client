@@ -11,7 +11,7 @@ type Game = {
   answer_url: string;
 };
 
-const GamePage: NextPage<{ params: { gameId: string } }> = async ({
+const GamePage: NextPage<{ params: { gameId: number } }> = async ({
   params: { gameId },
 }) => {
   const gameData: Game = await fetch(
@@ -61,7 +61,7 @@ const GamePage: NextPage<{ params: { gameId: string } }> = async ({
           maxHeight: "calc(100vh - 120px)",
         })}
       >
-        <Editor />
+        <Editor gameId={gameId} />
         <div
           className={css({
             width: "full",

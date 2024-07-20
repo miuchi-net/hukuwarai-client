@@ -2,7 +2,7 @@
 
 import { css } from "@/styled-system/css";
 import { highlight, languages } from "prismjs";
-import { FC, PropsWithChildren, useState } from "react";
+import { FC, PropsWithChildren, useEffect, useState } from "react";
 import ReactSimpleCodeEditor from "react-simple-code-editor";
 import "prismjs/themes/prism.css";
 import cssValidator from "w3c-css-validator";
@@ -63,7 +63,7 @@ const editorStyle = css({
   minHeight: "full",
 });
 
-export const Editor: FC = () => {
+export const Editor: FC<{ gameId: number }> = ({ gameId }) => {
   const [code, setCode] = useState({
     html: {
       isValid: true,
@@ -74,6 +74,19 @@ export const Editor: FC = () => {
       code: "// CSS",
     },
   });
+
+  useEffect(() => {
+    // once a minute
+    setInterval(async () => {
+      await fetch(`${process.env.API_ENDPOINT}/scores/${gameId}`, {
+        method: "POST",
+        body: JSON.stringify({
+          code: `${code.html.code}<style>${code.css.code}</style>`,
+          playerId: 0, // TODO: 実際のプレイヤー ID に
+        }),
+      });
+    }, 1000 * 60);
+  }, [code.css.code, code.html.code, gameId]);
 
   return (
     <>
