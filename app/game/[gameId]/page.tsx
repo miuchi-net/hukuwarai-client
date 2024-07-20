@@ -1,17 +1,45 @@
 import { css } from "@/styled-system/css";
 import { NextPage } from "next";
 import { Editor } from "./Editor";
-import { HtmlValidate } from "html-validate/browser";
+import { notFound } from "next/navigation";
 
-const dummyGame = {
-  title: "Figma",
-  targetImageUrl:
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Figma-logo.svg/1667px-Figma-logo.svg.png",
+type Game = {
+  id: number;
+  name: string;
+  started: boolean;
+  finished: boolean;
+  answer_url: string;
 };
 
 const GamePage: NextPage<{ params: { gameId: string } }> = async ({
-  params,
+  params: { gameId },
 }) => {
+  const gameData: Game = await fetch(
+    `${process.env.API_ENDPOINT}/game/${gameId}`
+  )
+    .catch(() => {
+      notFound();
+    })
+    .then((res) => {
+      return res.json();
+    });
+
+  if (!gameData.started) {
+    return (
+      <>
+        <h1>ゲームの開始までお待ちください</h1>
+      </>
+    );
+  }
+
+  if (gameData.finished) {
+    return (
+      <>
+        <h1>すでに終了したゲームです</h1>
+      </>
+    );
+  }
+
   return (
     <div>
       <div
@@ -21,9 +49,9 @@ const GamePage: NextPage<{ params: { gameId: string } }> = async ({
         })}
       >
         <h1 className={css({ fontSize: 24, fontWeight: "bold" })}>
-          {dummyGame.title}
+          {gameData.name}
         </h1>
-        <p>Game ID: {params.gameId.toLowerCase()}</p>
+        <p>Game ID: {gameId}</p>
       </div>
       <div
         className={css({
@@ -45,8 +73,8 @@ const GamePage: NextPage<{ params: { gameId: string } }> = async ({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={dummyGame.targetImageUrl}
-            alt={dummyGame.title}
+            src={gameData.answer_url}
+            alt={gameData.name}
             className={css({
               width: "400px",
               aspectRatio: "1/1",
