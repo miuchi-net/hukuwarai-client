@@ -78,7 +78,7 @@ export const Editor: FC<{ gameId: number }> = ({ gameId }) => {
   useEffect(() => {
     // once a minute
     setInterval(async () => {
-      await fetch(`${process.env.API_ENDPOINT}/scores/${gameId}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/scores/${gameId}`, {
         method: "POST",
         body: JSON.stringify({
           code: `${code.html.code}<style>${code.css.code}</style>`,

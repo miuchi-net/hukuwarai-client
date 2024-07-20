@@ -15,12 +15,13 @@ const GamePage: NextPage<{ params: { gameId: number } }> = async ({
   params: { gameId },
 }) => {
   const gameData: Game = await fetch(
-    `${process.env.API_ENDPOINT}/game/${gameId}`
+    `${process.env.NEXT_PUBLIC_API_ENDPOINT}/games/${gameId}`
   )
     .catch(() => {
       notFound();
     })
     .then((res) => {
+      console.log(res);
       return res.json();
     });
 
