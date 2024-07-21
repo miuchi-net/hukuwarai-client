@@ -6,6 +6,8 @@ import { FC, PropsWithChildren, useEffect, useState } from "react";
 import ReactSimpleCodeEditor from "react-simple-code-editor";
 import "prismjs/themes/prism.css";
 import cssValidator from "w3c-css-validator";
+import { useAtomValue } from "jotai";
+import { playerAtom } from "./playerAtom";
 
 const EditorArea: FC<
   PropsWithChildren<{
@@ -74,19 +76,23 @@ export const Editor: FC<{ gameId: number }> = ({ gameId }) => {
       code: "// CSS",
     },
   });
+  const player = useAtomValue(playerAtom);
 
   useEffect(() => {
     // once a minute
     setInterval(async () => {
       await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/scores/${gameId}`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           code: `${code.html.code}<style>${code.css.code}</style>`,
-          playerId: 0, // TODO: 実際のプレイヤー ID に
+          player_id: player?.id,
         }),
       });
-    }, 1000 * 60);
-  }, [code.css.code, code.html.code, gameId]);
+    }, 1000 * 10);
+  }, [code.css.code, code.html.code, gameId, player]);
 
   return (
     <>
