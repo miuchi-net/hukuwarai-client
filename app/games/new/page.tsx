@@ -12,6 +12,7 @@ const NewGamePage = () => {
 
   const onSubmit = handleSubmit(async (data) => {
     const game = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/games`, {
+      cache: "no-store",
       method: "POST",
       headers: {
         "Content-Type": "application/json",

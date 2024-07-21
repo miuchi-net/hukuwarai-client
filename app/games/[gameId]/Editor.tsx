@@ -82,6 +82,7 @@ export const Editor: FC<{ gameId: number }> = ({ gameId }) => {
     // once a minute
     const interval = setInterval(async () => {
       await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/scores/${gameId}`, {
+        cache: "no-store",
         method: "POST",
         headers: {
           "Content-Type": "application/json",

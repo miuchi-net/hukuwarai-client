@@ -17,6 +17,7 @@ export const GameDetails: FC<{ gameData: Game }> = ({ gameData }) => {
       `${process.env.NEXT_PUBLIC_API_ENDPOINT}/players/${gameData.id}`,
       {
         method: "POST",
+        cache: "no-store",
         headers: {
           "Content-Type": "application/json",
         },

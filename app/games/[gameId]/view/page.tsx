@@ -11,7 +11,10 @@ const ViewGameDetailsPage: NextPage<{ params: { gameId: string } }> = async ({
     rendered_url: string;
     code: string;
   }[] = await fetch(
-    `${process.env.NEXT_PUBLIC_API_ENDPOINT}/scores/${gameId}/result`
+    `${process.env.NEXT_PUBLIC_API_ENDPOINT}/scores/${gameId}/result`,
+    {
+      cache: "no-store",
+    }
   ).then((res) => res.json());
 
   return (

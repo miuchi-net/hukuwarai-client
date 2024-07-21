@@ -14,7 +14,10 @@ const GamePage: NextPage<{ params: { gameId: number } }> = async ({
   params: { gameId },
 }) => {
   const gameData: Game = await fetch(
-    `${process.env.NEXT_PUBLIC_API_ENDPOINT}/games/${gameId}`
+    `${process.env.NEXT_PUBLIC_API_ENDPOINT}/games/${gameId}`,
+    {
+      cache: "no-store",
+    }
   )
     .catch(() => {
       notFound();
@@ -22,6 +25,10 @@ const GamePage: NextPage<{ params: { gameId: number } }> = async ({
     .then((res) => {
       return res.json();
     });
+
+  if (!gameData) {
+    return <p>Loading...</p>;
+  }
 
   if (!gameData.started) {
     return (
