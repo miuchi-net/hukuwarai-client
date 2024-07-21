@@ -91,7 +91,7 @@ export const Editor: FC<{ gameId: number }> = ({ gameId }) => {
           player_id: player?.id,
         }),
       });
-    }, 1000 * 10);
+    }, 1000 * 5);
 
     return () => clearInterval(interval);
   }, [code.css.code, code.html.code, gameId, player]);
