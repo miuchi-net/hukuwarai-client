@@ -73,14 +73,14 @@ export const Editor: FC<{ gameId: number }> = ({ gameId }) => {
     },
     css: {
       isValid: true,
-      code: "// CSS",
+      code: "/* CSS */",
     },
   });
   const player = useAtomValue(playerAtom);
 
   useEffect(() => {
     // once a minute
-    setInterval(async () => {
+    const interval = setInterval(async () => {
       await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/scores/${gameId}`, {
         method: "POST",
         headers: {
@@ -92,6 +92,8 @@ export const Editor: FC<{ gameId: number }> = ({ gameId }) => {
         }),
       });
     }, 1000 * 10);
+
+    return () => clearInterval(interval);
   }, [code.css.code, code.html.code, gameId, player]);
 
   return (
