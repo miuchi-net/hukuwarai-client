@@ -1,9 +1,8 @@
-import { css } from "@/styled-system/css";
 import { NextPage } from "next";
-import { Editor } from "./Editor";
 import { notFound } from "next/navigation";
+import { GameDetails } from "./GameDetails";
 
-type Game = {
+export type Game = {
   id: number;
   name: string;
   started: boolean;
@@ -21,7 +20,6 @@ const GamePage: NextPage<{ params: { gameId: number } }> = async ({
       notFound();
     })
     .then((res) => {
-      console.log(res);
       return res.json();
     });
 
@@ -41,51 +39,7 @@ const GamePage: NextPage<{ params: { gameId: number } }> = async ({
     );
   }
 
-  return (
-    <div>
-      <div
-        className={css({
-          padding: 5,
-          height: "120px",
-        })}
-      >
-        <h1 className={css({ fontSize: 24, fontWeight: "bold" })}>
-          {gameData.name}
-        </h1>
-        <p>Game ID: {gameId}</p>
-      </div>
-      <div
-        className={css({
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          height: "calc(100vh - 120px)",
-          maxHeight: "calc(100vh - 120px)",
-        })}
-      >
-        <Editor gameId={gameId} />
-        <div
-          className={css({
-            width: "full",
-            height: "full",
-            display: "grid",
-            placeContent: "center",
-            bg: "gray.50",
-          })}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={gameData.answer_url}
-            alt={gameData.name}
-            className={css({
-              width: "400px",
-              aspectRatio: "1/1",
-              objectFit: "contain",
-            })}
-          />
-        </div>
-      </div>
-    </div>
-  );
+  return <GameDetails gameData={gameData} />;
 };
 
 export default GamePage;
